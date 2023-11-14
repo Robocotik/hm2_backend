@@ -78,6 +78,13 @@ func main() {
 		for key, count := range lines_count {
 			fmt.Printf("%d %s\n", count, key)
 		}
+	} else if flags.d {
+		for key, count := range lines_count {
+			if count > 1{
+				fmt.Println(key)
+			}
+			
+		}
 	}
 
 }
