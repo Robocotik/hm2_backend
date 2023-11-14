@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Flags struct {
@@ -91,6 +92,14 @@ func main() {
 				fmt.Println(key)
 			}
 			
+		}
+	} else if flags.i{
+		changed_list_count := make(map[string]int)
+		for key, _ := range lines_count {
+			changed_list_count[strings.ToLower(key)] ++
+		}
+		for key, _ := range changed_list_count {
+			fmt.Println(key)
 		}
 	}
 
