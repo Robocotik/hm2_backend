@@ -28,6 +28,40 @@ func BoolToInt(el bool) int {
 	}
 }
 
+func CheckI(el bool) {
+	changed_list_count := make(map[string]int)
+		for key, _ := range lines_count {
+			changed_list_count[strings.ToLower(key)] ++
+		}
+		for key, _ := range changed_list_count {
+			fmt.Println(key)
+		}
+}
+
+func CheckU(el bool) {
+	for key, count := range lines_count {
+		if count == 1{
+			fmt.Println(key)
+		}
+		
+	}
+}
+
+func CheckD(el bool) {
+	for key, count := range lines_count {
+		if count > 1{
+			fmt.Println(key)
+		}
+		
+	}
+}
+
+func CheckC(el bool) {
+	for key, count := range lines_count {
+		fmt.Printf("%d %s\n", count, key)
+	}
+}
+
 func init() {
 	flag.BoolVar(&flags.c, "c", false, "counting the frequency of each line in the text")
 	flag.BoolVar(&flags.d, "d", false, "show only REPEATED lines")
@@ -38,9 +72,11 @@ func init() {
 	flag.Parse()
 }
 
+var lines_count = make(map[string]int)
+
 func main() {
 	// An artificial input source.
-	var lines_count = make(map[string]int)
+
 
 	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
 		fmt.Println("Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
@@ -75,32 +111,13 @@ func main() {
 		}
 
 	} else if flags.c {
-		//fmt.Println("I'm in C!")
-		for key, count := range lines_count {
-			fmt.Printf("%d %s\n", count, key)
-		}
+		CheckC(flags.c)
 	} else if flags.d {
-		for key, count := range lines_count {
-			if count > 1{
-				fmt.Println(key)
-			}
-			
-		}
+		CheckD(flags.d)
 	} else if flags.u{
-		for key, count := range lines_count {
-			if count == 1{
-				fmt.Println(key)
-			}
-			
-		}
+		CheckU(flags.u)
 	} else if flags.i{
-		changed_list_count := make(map[string]int)
-		for key, _ := range lines_count {
-			changed_list_count[strings.ToLower(key)] ++
-		}
-		for key, _ := range changed_list_count {
-			fmt.Println(key)
-		}
+		CheckI(flags.i)
 	}
 
 }
