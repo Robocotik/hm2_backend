@@ -85,6 +85,13 @@ func main() {
 			}
 			
 		}
+	} else if flags.u{
+		for key, count := range lines_count {
+			if count == 1{
+				fmt.Println(key)
+			}
+			
+		}
 	}
 
 }
