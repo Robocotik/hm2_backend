@@ -11,9 +11,10 @@ type Flags struct {
 	c bool
 	d bool
 	u bool
+	i bool
 	f int
 	s int
-	i bool
+	
 }
 
 var flags Flags
@@ -38,16 +39,15 @@ func init() {
 
 func main() {
 	// An artificial input source.
+	var lines_count = make(map[string]int)
 
 	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
 		fmt.Println("Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
 		return
-	}
-	if len(flag.Args()) == 0 {
+
+	} else {
 		scanner := bufio.NewScanner(os.Stdin)
 
-		var lines []string
-		lines_count := make(map[string]int)
 		for {
 			// read line from stdin using newline as separator
 			scanner.Scan()
@@ -58,17 +58,26 @@ func main() {
 			}
 
 			//append the line to a slice
-			lines = append(lines, line)
 			lines_count[line]++
-		}
-		for key, _ := range lines_count {
-			fmt.Println(key)
 		}
 
 		if scanner.Err() != nil {
 			fmt.Println("Error occured")
 		}
+		
+	}
 
+	if flag.NFlag() == 0 {
+		//fmt.Println("I'm in ZERO!")
+		for key, _ := range lines_count {
+			fmt.Println(key)
+		}
+
+	} else if flags.c {
+		//fmt.Println("I'm in C!")
+		for key, count := range lines_count {
+			fmt.Printf("%d %s\n", count, key)
+		}
 	}
 
 }
