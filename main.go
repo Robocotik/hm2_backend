@@ -5,8 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-
-	// "io"
 	"os"
 	"strings"
 )
@@ -82,7 +80,7 @@ func InitialConsoleInput() {
 			lines_count[line]++
 		}
 		if scanner.Err() != nil {
-			fmt.Println("Reading error occured")
+			fmt.Println("Error: reading error occured")
 		}
 
 	}
@@ -94,7 +92,8 @@ func CheckForAdditionalInput() {
 		fmt.Println("Error: so many command-line arguments")
 		return
 	}
-	if !strings.Contains(flag.Args()[0], ".txt") {
+
+	if !strings.Contains(flag.Args()[0], ".txt") { // by te way input file.txt exist
 		fmt.Printf("Error: incorrect command-line argument")
 		return
 	}
@@ -105,19 +104,19 @@ func CheckForAdditionalInput() {
 	}
 	data, err := io.ReadAll(fileInput)
 	fmt.Println(string(data))
-	fileInput.Close()
+	defer fileInput.Close()
 
-	if len(flag.Args()) == 2 {
+	if len(flag.Args()) == 2 { // check for needing in output.txt
 		if !strings.Contains(flag.Args()[1], ".txt") {
 			fmt.Printf("Error: incorrect command-line argument")
 			return
 		}
-		fileOutput, err := os.Open(flag.Args()[0])
+		fileOutput, err := os.OpenFile(flag.Args()[1], os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
 			fmt.Println("Error: Occured problem during opening the file")
 			panic(err)
 		}
-		io.WriteString(fileOutput, "WORKS")
+		fileOutput.WriteString("WORKS")
 		fileOutput.Close()
 	}
 }
@@ -141,7 +140,9 @@ func InitFlags() {
 
 func main() {
 	InitFlags()
-	CheckForAdditionalInput()
+	if len(flag.Args()) > 0{
+		CheckForAdditionalInput()
+	}
 	InitialConsoleInput()
 	// An artificial input source.
 	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
