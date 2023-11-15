@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"io"
+
+	// "io"
 	"os"
 	"strings"
 )
@@ -63,46 +65,10 @@ func CheckC(el bool) {
 }
 
 var lines_count = make(map[string]int)
-var txt_count = 0
 
-func init1() {
-	// var args = []string{}
-
-	flag.BoolVar(&flags.c, "c", false, "counting the frequency of each line in the text")
-	flag.BoolVar(&flags.d, "d", false, "show only REPEATED lines")
-	flag.BoolVar(&flags.u, "u", false, "show only UNIQUE lines")
-	flag.IntVar(&flags.f, "f", 0, "to not read first N words")
-	flag.IntVar(&flags.s, "s", 0, "to not read first N symbols")
-	flag.BoolVar(&flags.i, "i", false, "to not focus on registr")
-	flag.Parse()
-
-	for _, el := range flag.Args() {
-		if strings.Contains(el, ".txt") {
-			//try catch open file
-			txt_count++
-			file, err := os.Open(el)
-			if err != nil {
-				fmt.Println("Occured the problem during opening the file")
-				panic(err)
-			}
-			data, err := io.ReadAll(file)
-			fmt.Println(string(data))
-
-		}
-	}
-}
-
-func main() {
-	init1()
-	// An artificial input source.
-	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
-		fmt.Println("Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
-		return
-
-	} else {
-
-		if txt_count == 0{
-			scanner := bufio.NewScanner(os.Stdin)
+func InitialConsoleInput() {
+	if len(flag.Args()) == 0 {
+		scanner := bufio.NewScanner(os.Stdin)
 		for {
 			// read line from stdin using newline as separator
 			scanner.Scan()
@@ -119,7 +85,68 @@ func main() {
 			fmt.Println("Reading error occured")
 		}
 
+	}
+
+}
+
+func CheckForAdditionalInput() {
+	if len(flag.Args()) > 2 {
+		fmt.Println("Error: so many command-line arguments")
+		return
+	}
+	if !strings.Contains(flag.Args()[0], ".txt") {
+		fmt.Printf("Error: incorrect command-line argument")
+		return
+	}
+	fileInput, err := os.Open(flag.Args()[0])
+	if err != nil {
+		fmt.Println("Error: Occured problem during opening the file")
+		panic(err)
+	}
+	data, err := io.ReadAll(fileInput)
+	fmt.Println(string(data))
+	fileInput.Close()
+
+	if len(flag.Args()) == 2 {
+		if !strings.Contains(flag.Args()[1], ".txt") {
+			fmt.Printf("Error: incorrect command-line argument")
+			return
 		}
+		fileOutput, err := os.Open(flag.Args()[0])
+		if err != nil {
+			fmt.Println("Error: Occured problem during opening the file")
+			panic(err)
+		}
+		io.WriteString(fileOutput, "WORKS")
+		fileOutput.Close()
+	}
+}
+
+func InitFlags() {
+	// var args = []string{}
+
+	flag.BoolVar(&flags.c, "c", false, "counting the frequency of each line in the text")
+	flag.BoolVar(&flags.d, "d", false, "show only REPEATED lines")
+	flag.BoolVar(&flags.u, "u", false, "show only UNIQUE lines")
+	flag.IntVar(&flags.f, "f", 0, "to not read first N words")
+	flag.IntVar(&flags.s, "s", 0, "to not read first N symbols")
+	flag.BoolVar(&flags.i, "i", false, "to not focus on registr")
+	flag.Parse()
+
+	// flag.Visit(func(f *flag.Flag) {
+	// 	fmt.Println("Flag:", f.Name, "Value:", f.Value)
+	// })
+
+}
+
+func main() {
+	InitFlags()
+	CheckForAdditionalInput()
+	InitialConsoleInput()
+	// An artificial input source.
+	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
+		fmt.Println("Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
+		return 
 
 	}
 
