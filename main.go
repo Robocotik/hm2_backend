@@ -1,10 +1,12 @@
 package main
 
+// -f -s (delete)-> -i (registr) ->
 import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io"
+
+	// "io"
 	"os"
 	"strings"
 )
@@ -63,9 +65,10 @@ func CheckC(el bool) {
 }
 
 var lines_count = make(map[string]int)
+var txtCount = 0
 
 func InitialConsoleInput() {
-	if len(flag.Args()) == 0 {
+	if txtCount == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
 		for {
 			// read line from stdin using newline as separator
@@ -87,34 +90,38 @@ func InitialConsoleInput() {
 
 }
 
+func ChechTxtCount(){
+	for _ , el := range flag.Args(){
+		if strings.Contains(el, ".txt"){
+			txtCount++
+		}
+	}
+}
+
 func CheckForAdditionalInput() {
-	if len(flag.Args()) > 2 {
-		fmt.Println("Error: so many command-line arguments")
+	if txtCount > 2 {
+		fmt.Println("Error: so many .txt arguments")
 		return
 	}
 
-	if !strings.Contains(flag.Args()[0], ".txt") { // by te way input file.txt exist
-		fmt.Printf("Error: incorrect command-line argument")
-		return
-	}
 	fileInput, err := os.Open(flag.Args()[0])
 	if err != nil {
 		fmt.Println("Error: Occured problem during opening the file")
-		panic(err)
+		return 
 	}
-	data, err := io.ReadAll(fileInput)
-	fmt.Println(string(data))
+	// data, err := io.ReadAll(fileInput)
+	//fmt.Println(string(data))
+	
 	defer fileInput.Close()
 
-	if len(flag.Args()) == 2 { // check for needing in output.txt
-		if !strings.Contains(flag.Args()[1], ".txt") {
-			fmt.Printf("Error: incorrect command-line argument")
-			return
-		}
+	if txtCount == 2 { // check for needing in output.txt
+		fmt.Println("OUTPUTED IN FILE")
+
 		fileOutput, err := os.OpenFile(flag.Args()[1], os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
 			fmt.Println("Error: Occured problem during opening the file")
-			panic(err)
+			return 
+			
 		}
 		fileOutput.WriteString("WORKS")
 		fileOutput.Close()
@@ -132,6 +139,9 @@ func InitFlags() {
 	flag.BoolVar(&flags.i, "i", false, "to not focus on registr")
 	flag.Parse()
 
+	ChechTxtCount()
+	fmt.Println(flag.Args(), txtCount)
+
 	// flag.Visit(func(f *flag.Flag) {
 	// 	fmt.Println("Flag:", f.Name, "Value:", f.Value)
 	// })
@@ -140,13 +150,13 @@ func InitFlags() {
 
 func main() {
 	InitFlags()
-	if len(flag.Args()) > 0{
+	if txtCount > 0{
 		CheckForAdditionalInput()
 	}
 	InitialConsoleInput()
 	// An artificial input source.
 	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
-		fmt.Println("Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
+		fmt.Println("Error: Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
 		return 
 
 	}
