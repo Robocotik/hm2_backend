@@ -6,7 +6,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io"
+	"log"
 	"os"
 	"strings"
 )
@@ -35,45 +35,59 @@ func CheckI() {
 	for key, _ := range lines_count {
 		changed_list_count[strings.ToLower(key)]++
 	}
+	fmt.Println("\n________after I___________")
 	for key, _ := range changed_list_count {
 		fmt.Println(key)
 	}
-	fmt.Println("I'M IN I")
+	fmt.Println("-----------I'M IN I----------")
 }
 
 func CheckU() {
+
+	fmt.Println("\n________after U___________")
 	for key, count := range lines_count {
 		if count == 1 {
 			fmt.Println(key)
 		}
 
 	}
-	fmt.Println("I'M IN U")
+	fmt.Println("------------I'M IN U-----------")
 }
 
 func CheckD() {
+	fmt.Println("\n________after D___________")
 	for key, count := range lines_count {
 		if count > 1 {
 			fmt.Println(key)
 		}
 
 	}
-	fmt.Println("I'M IN D")
+	fmt.Println("----------I'M IN D---------")
 }
 
 func CheckF() {
 	fmt.Println("I'M IN F")
+
 }
 
-func CheckS(){
-	fmt.Println("I'M IN S")
+func CheckS() {
+	fmt.Println("\n________after S___________")
+	changed_list_count := make(map[string]int)
+	for key, _ := range lines_count{
+		fmt.Println(key[flags.s:])
+		changed_list_count[key[flags.s:]]++
+	}
+	fmt.Println(changed_list_count)
+	fmt.Println("---------I'M IN S-----------")
+
 }
 
 func CheckC() {
-	for key, count := range lines_count {
-		fmt.Printf("%d %s\n", count, key)
-	}
-	fmt.Println("I'M IN C")
+	fmt.Println("\n________after C___________")
+	// for key, count := range lines_count {
+	// 	fmt.Printf("%d %s\n", count, key)
+	// }
+	fmt.Println("-----------I'M IN C------------")
 }
 
 var lines_count = make(map[string]int)
@@ -87,13 +101,16 @@ func InitialConsoleInput() {
 			scanner.Scan()
 			line := scanner.Text()
 			// if line is empty, break the loop
+			lines_count[strings.TrimSpace(line)]++
+
 			if len(line) == 0 {
 				break
 			}
-
 			//append the line to a slice
-			lines_count[line]++
+			
 		}
+		fmt.Println(lines_count)
+
 		if scanner.Err() != nil {
 			fmt.Println("Error: reading error occured")
 		}
@@ -110,6 +127,14 @@ func ChechTxtCount() {
 	}
 }
 
+func CheckFlagCorrectness() {
+	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
+		fmt.Println("Error: Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
+		return
+
+	}
+}
+
 func CheckForAdditionalInput() {
 	if txtCount > 2 {
 		fmt.Println("Error: so many .txt arguments")
@@ -118,20 +143,19 @@ func CheckForAdditionalInput() {
 
 	fileInput, err := os.Open(flag.Args()[0])
 	if err != nil {
-		fmt.Println("Error: Occured problem during opening the file")
-		return
+		fmt.Println("Error: occured")
 	}
-	data, err := io.ReadAll(fileInput)
-	for _, line := range strings.Split(string(data), "\n") {
-		lines_count[line]++
-	}
-	// fmt.Println("------------------")
-	// for key, val := range lines_count{
-	// 	fmt.Println(key, val)
-	// }
-	// fmt.Println("------------------")
-
 	defer fileInput.Close()
+
+	scanner := bufio.NewScanner(fileInput)
+	for scanner.Scan() {
+		lines_count[strings.TrimSpace(scanner.Text())]++
+	}
+	fmt.Println(lines_count)
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
 
 	if txtCount == 2 { // check for needing in output.txt
 		fmt.Println("OUTPUTED IN FILE")
@@ -157,13 +181,20 @@ func CheckFlags() {
 	}
 
 	flag.Visit(func(f *flag.Flag) { //theoretically the flag can be false!
+		fmt.Printf("%s  |  %s", f.Name, f.Value)
 		flagFuncs[f.Name]()
 	})
+
+	if flag.NFlag() == 0 {
+		fmt.Println("I'm in ZERO!")
+		for key, _ := range lines_count {
+			fmt.Println(key)
+		}
+
+	}
 }
 
-
 func InitFlags() {
-	// var args = []string{}
 
 	flag.BoolVar(&flags.c, "c", false, "counting the frequency of each line in the text")
 	flag.BoolVar(&flags.d, "d", false, "show only REPEATED lines")
@@ -173,45 +204,15 @@ func InitFlags() {
 	flag.BoolVar(&flags.i, "i", false, "to not focus on registr")
 	flag.Parse()
 
-	
-	ChechTxtCount()
-	// fmt.Println(flag.Args(), txtCount)
-
 }
-
 
 func main() {
 	InitFlags()
-	CheckFlags()
+	ChechTxtCount()
 	if txtCount > 0 {
 		CheckForAdditionalInput()
 	}
 	InitialConsoleInput()
-	// An artificial input source.
-	if BoolToInt(flags.c)+BoolToInt(flags.d)+BoolToInt(flags.u) > 1 {
-		fmt.Println("Error: Incorrect combination of flags (you can't choose more than 1 from --c, --d, --u)")
-		return
-
-	}
-
-	if flag.NFlag() == 0 {
-		//fmt.Println("I'm in ZERO!")
-		for key, _ := range lines_count {
-			fmt.Println(key)
-		}
-
-	}
-	if flags.c {
-		CheckC()
-	}
-	if flags.d {
-		CheckD()
-	}
-	if flags.u {
-		CheckU()
-	}
-	if flags.i {
-		CheckI()
-	}
-
+	CheckFlagCorrectness()
+	CheckFlags()
 }
