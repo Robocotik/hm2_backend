@@ -66,14 +66,24 @@ func CheckD() {
 }
 
 func CheckF() {
-	fmt.Println("I'M IN F")
-
+	fmt.Println("\n________after F___________")
+	changed_list_count := make(map[string]int)
+	for key, _ := range lines_count {
+		//fmt.Println(strings.Fields(key)[1])
+		if len(strings.Fields(key)) > flags.f{
+			changed_list_count[strings.Join(strings.Fields(key)[flags.f:], " ")]++
+		} else{
+			changed_list_count[" "]++
+		}
+	}
+	lines_count = changed_list_count
+	fmt.Println("----------I'M IN F-------------")
 }
 
 func CheckS() {
 	fmt.Println("\n________after S___________")
 	changed_list_count := make(map[string]int)
-	for key, _ := range lines_count{
+	for key, _ := range lines_count {
 		fmt.Println(key[flags.s:])
 		changed_list_count[key[flags.s:]]++
 	}
@@ -107,7 +117,7 @@ func InitialConsoleInput() {
 				break
 			}
 			//append the line to a slice
-			
+
 		}
 		fmt.Println(lines_count)
 
