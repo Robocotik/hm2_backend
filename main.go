@@ -1,7 +1,5 @@
 package main
 
-// -f -s (delete)-> -i (registr) -> --c --d --u
-
 import (
 	"bufio"
 	"flag"
@@ -21,6 +19,12 @@ type Flags struct {
 }
 
 var flags Flags
+type count_num struct{
+	count int
+	num int
+}
+var lines_count = make(map[string]count_num)
+var txtCount = 0
 
 func BoolToInt(el bool) int {
 	if el {
@@ -31,96 +35,122 @@ func BoolToInt(el bool) int {
 }
 
 func CheckI() {
-	//fmt.Println("\n________after I___________")
-	changed_list_count := make(map[string]int)
+	fmt.Println("\n________after I___________")
+	var changed_list_count = make(map[string]count_num)
 	//fmt.Printf("i got at start %v\n", lines_count)
 	for key, val := range lines_count {
 		//fmt.Printf("for |%v| i did |%v|\n", key, strings.ToLower(key))
-		changed_list_count[strings.ToLower(key)] += val
+		arg := strings.ToLower(key)
+		_, exist := changed_list_count[arg]
+		if exist{
+			tmp := changed_list_count[arg]
+			tmp.count += val.count
+			changed_list_count[arg] = tmp
+		} else{
+			changed_list_count[arg] = count_num{val.count,val.num}
+		}
+		fmt.Println(changed_list_count)
+
 	}
 	//fmt.Println(changed_list_count)
 	lines_count = changed_list_count
 	//fmt.Println(lines_count)
-	//fmt.Println("-----------I'M IN I----------")
+	fmt.Println("-----------I'M IN I----------")
 }
 
 func CheckU() {
 
-	//fmt.Println("\n________after U___________")
-	for key, count := range lines_count {
-		if count > 1 {
+	fmt.Println("\n________after U___________")
+	for key, val := range lines_count {
+		if val.count > 1 {
 			delete(lines_count, key)
 		}
 	}
 	//fmt.Println(lines_count)
-	//fmt.Println("------------I'M IN U-----------")
+	fmt.Println("------------I'M IN U-----------")
 }
 
 func CheckD() { // --d flag
-	//fmt.Println("\n________after D___________")
-	for key, count := range lines_count {
-		if count == 1 {
+	fmt.Println("\n________after D___________")
+	for key, val := range lines_count {
+		if val.count == 1 {
 			delete(lines_count, key)
 		}
 	}
-	//fmt.Println(lines_count)
-	//fmt.Println("----------I'M IN D---------")
+	fmt.Println(lines_count)
+	fmt.Println("----------I'M IN D---------")
 }
 
 func CheckF() { // --f= flag
-	//fmt.Println("\n________after F___________")
-	changed_list_count := make(map[string]int)
+	fmt.Println("\n________after F___________")
+	var changed_list_count = make(map[string]count_num)
 	for key, val := range lines_count {
-		if len(strings.Fields(key)) > flags.f {
-			changed_list_count[strings.Join(strings.Fields(key)[flags.f:], " ")] += val
-			//fmt.Printf("for |%v| i did |%v|\n", key, strings.Join(strings.Fields(key)[flags.f:], " "))
-		} else {
-			changed_list_count[" "] += val
-			//fmt.Printf("for |%v| i did |' '|\n", key)
+		arg := ""
+		if len(strings.Fields(key)) > flags.f{
+			arg = strings.Join(strings.Fields(key)[flags.f:], " ")
+		} 
+		_, exist := changed_list_count[arg]
+		if exist {
+			tmp := changed_list_count[arg]
+			tmp.count += val.count
+			changed_list_count[arg] = tmp
+		}else{
+			changed_list_count[arg] = count_num{val.count,val.num}
 		}
 	}
 	lines_count = changed_list_count
-	//fmt.Println(lines_count)
-	//fmt.Println("----------I'M IN F-------------")
+	fmt.Println(lines_count)
+	fmt.Println("----------I'M IN F-------------")
 }
 
 func CheckS() { // --s= flag
-	//fmt.Println("\n________after S___________")
-	changed_list_count := make(map[string]int)
+	fmt.Println("\n________after S___________")
+	var changed_list_count = make(map[string]count_num)
 	for key, val := range lines_count {
-		if len(key) > flags.s {
-			//fmt.Printf("for |%v| i did |%v|\n", key, key[flags.s:])
-			changed_list_count[key[flags.s:]] += val
-		} else {
-			changed_list_count[" "] += val
-			//fmt.Printf("for |%v| i did |' '|\n", key)
+		arg := ""
+		if len(key) > flags.f{
+			arg = key[flags.f:]
+		} 
+		_, exist := changed_list_count[arg]
+		if exist {
+			tmp := changed_list_count[arg]
+			tmp.count += val.count
+			changed_list_count[arg] = tmp
+		}else{
+			changed_list_count[arg] = count_num{val.count,val.num}
 		}
-
 	}
 	lines_count = changed_list_count
-	//fmt.Println(lines_count)
-	//fmt.Println("---------I'M IN S-----------")
+	fmt.Println(lines_count)
+	fmt.Println("---------I'M IN S-----------")
 
 }
 
 func CheckC() { // --c flag
 	// it already works in default
-	//fmt.Println("\n________after C___________")
-	//fmt.Println("-----------I'M IN C------------")
+	fmt.Println("\n________after C___________")
+	fmt.Println("-----------I'M IN C------------")
 }
-
-var lines_count = make(map[string]int)
-var txtCount = 0
 
 func InitialConsoleInput() {
 	if txtCount == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
+		i := 0
 		for {
 			// read line from stdin using newline as separator
 			scanner.Scan()
-			line := scanner.Text()
+			
 			// if line is empty, break the loop
-			lines_count[strings.TrimSpace(line)]++
+			line := strings.TrimSpace(scanner.Text())
+			_, exist := lines_count[line]
+			if exist{
+				tmp := lines_count[line]
+				tmp.count ++
+				lines_count[line] = tmp
+			} else{
+				lines_count[line] = count_num{1,i}
+			}
+			i++
 
 			if len(line) == 0 {
 				break
@@ -167,9 +197,20 @@ func CheckForAdditionalInput() {
 	defer fileInput.Close()
 
 	scanner := bufio.NewScanner(fileInput)
+	i:= 0
 	for scanner.Scan() {
-		lines_count[strings.TrimSpace(scanner.Text())]++
+		line := strings.TrimSpace(scanner.Text())
+		_, exist := lines_count[line]
+		if exist{
+			tmp := lines_count[line]
+			tmp.count ++
+			lines_count[line] = tmp
+		} else{
+			lines_count[line] = count_num{1,i}
+		}
+		i++
 	}
+	
 	//fmt.Println(lines_count)
 
 	if err := scanner.Err(); err != nil {
@@ -191,14 +232,6 @@ func CheckFlags() {
 		//fmt.Printf("%s  |  %s", f.Name, f.Value)
 		flagFuncs[f.Name]()
 	})
-
-	if flag.NFlag() == 0 {
-		fmt.Println("I'm in ZERO!")
-		for key, _ := range lines_count {
-			fmt.Println(key)
-		}
-
-	}
 }
 
 func InitFlags() {
@@ -214,6 +247,7 @@ func InitFlags() {
 }
 
 func showResult() {
+	fmt.Println(lines_count)
 	if txtCount == 2 { // check for needing in output.txt
 		//fmt.Println("OUTPUTED IN FILE")
 
@@ -223,6 +257,7 @@ func showResult() {
 			return
 
 		}
+		//fmt.Println(lines_count)
 		for key, val := range lines_count {
 			if flags.c {
 				fileOutput.WriteString(fmt.Sprint(val))
