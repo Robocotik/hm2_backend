@@ -36,7 +36,7 @@ func CheckI() {
 	fmt.Printf("i got at start %v\n", lines_count)
 	for key, val := range lines_count {
 		fmt.Printf("for |%v| i did |%v|\n", key, strings.ToLower(key))
-		changed_list_count[strings.ToLower(key)]+=val
+		changed_list_count[strings.ToLower(key)] += val
 	}
 	fmt.Println(changed_list_count)
 	lines_count = changed_list_count
@@ -56,7 +56,7 @@ func CheckU() {
 	fmt.Println("------------I'M IN U-----------")
 }
 
-func CheckD() {  // --d flag 
+func CheckD() { // --d flag
 	fmt.Println("\n________after D___________")
 	for key, count := range lines_count {
 		if count == 1 {
@@ -71,11 +71,11 @@ func CheckF() { // --f= flag
 	fmt.Println("\n________after F___________")
 	changed_list_count := make(map[string]int)
 	for key, val := range lines_count {
-		if len(strings.Fields(key)) > flags.f{
-			changed_list_count[strings.Join(strings.Fields(key)[flags.f:], " ")]+=val
+		if len(strings.Fields(key)) > flags.f {
+			changed_list_count[strings.Join(strings.Fields(key)[flags.f:], " ")] += val
 			fmt.Printf("for |%v| i did |%v|\n", key, strings.Join(strings.Fields(key)[flags.f:], " "))
-		} else{
-			changed_list_count[" "]+=val
+		} else {
+			changed_list_count[" "] += val
 			fmt.Printf("for |%v| i did |' '|\n", key)
 		}
 	}
@@ -87,11 +87,18 @@ func CheckF() { // --f= flag
 func CheckS() { // --s= flag
 	fmt.Println("\n________after S___________")
 	changed_list_count := make(map[string]int)
-	for key, _ := range lines_count {
-		fmt.Println(key[flags.s:])
-		changed_list_count[key[flags.s:]]++
+	for key, val := range lines_count {
+		if len(key) > flags.s {
+			fmt.Printf("for |%v| i did |%v|\n", key, key[flags.s:])
+			changed_list_count[key[flags.s:]]+=val
+		} else {
+			changed_list_count[" "] += val
+			fmt.Printf("for |%v| i did |' '|\n", key)
+		}
+
 	}
-	fmt.Println(changed_list_count)
+	lines_count = changed_list_count
+	fmt.Println(lines_count)
 	fmt.Println("---------I'M IN S-----------")
 
 }
@@ -218,8 +225,8 @@ func InitFlags() {
 
 }
 
-func showResult(){
-	for _, val := range lines_count{
+func showResult() {
+	for _, val := range lines_count {
 		fmt.Println(val)
 	}
 }
