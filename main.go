@@ -31,14 +31,16 @@ func BoolToInt(el bool) int {
 }
 
 func CheckI() {
-	changed_list_count := make(map[string]int)
-	for key, _ := range lines_count {
-		changed_list_count[strings.ToLower(key)]++
-	}
 	fmt.Println("\n________after I___________")
-	for key, _ := range changed_list_count {
-		fmt.Println(key)
+	changed_list_count := make(map[string]int)
+	fmt.Printf("i got at start %v\n", lines_count)
+	for key, val := range lines_count {
+		fmt.Printf("for |%v| i did |%v|\n", key, strings.ToLower(key))
+		changed_list_count[strings.ToLower(key)]+=val
 	}
+	fmt.Println(changed_list_count)
+	lines_count = changed_list_count
+	//fmt.Println(lines_count)
 	fmt.Println("-----------I'M IN I----------")
 }
 
@@ -46,41 +48,43 @@ func CheckU() {
 
 	fmt.Println("\n________after U___________")
 	for key, count := range lines_count {
-		if count == 1 {
-			fmt.Println(key)
+		if count > 1 {
+			delete(lines_count, key)
 		}
-
 	}
+	fmt.Println(lines_count)
 	fmt.Println("------------I'M IN U-----------")
 }
 
-func CheckD() {
+func CheckD() {  // --d flag 
 	fmt.Println("\n________after D___________")
 	for key, count := range lines_count {
-		if count > 1 {
-			fmt.Println(key)
+		if count == 1 {
+			delete(lines_count, key)
 		}
-
 	}
+	fmt.Println(lines_count)
 	fmt.Println("----------I'M IN D---------")
 }
 
-func CheckF() {
+func CheckF() { // --f= flag
 	fmt.Println("\n________after F___________")
 	changed_list_count := make(map[string]int)
-	for key, _ := range lines_count {
-		//fmt.Println(strings.Fields(key)[1])
+	for key, val := range lines_count {
 		if len(strings.Fields(key)) > flags.f{
-			changed_list_count[strings.Join(strings.Fields(key)[flags.f:], " ")]++
+			changed_list_count[strings.Join(strings.Fields(key)[flags.f:], " ")]+=val
+			fmt.Printf("for |%v| i did |%v|\n", key, strings.Join(strings.Fields(key)[flags.f:], " "))
 		} else{
-			changed_list_count[" "]++
+			changed_list_count[" "]+=val
+			fmt.Printf("for |%v| i did |' '|\n", key)
 		}
 	}
 	lines_count = changed_list_count
+	fmt.Println(lines_count)
 	fmt.Println("----------I'M IN F-------------")
 }
 
-func CheckS() {
+func CheckS() { // --s= flag
 	fmt.Println("\n________after S___________")
 	changed_list_count := make(map[string]int)
 	for key, _ := range lines_count {
@@ -92,11 +96,9 @@ func CheckS() {
 
 }
 
-func CheckC() {
+func CheckC() { // --c flag
+	// it already works in default
 	fmt.Println("\n________after C___________")
-	// for key, count := range lines_count {
-	// 	fmt.Printf("%d %s\n", count, key)
-	// }
 	fmt.Println("-----------I'M IN C------------")
 }
 
@@ -216,13 +218,18 @@ func InitFlags() {
 
 }
 
+func showResult(){
+	for _, val := range lines_count{
+		fmt.Println(val)
+	}
+}
 func main() {
 	InitFlags()
+	CheckFlagCorrectness()
 	ChechTxtCount()
 	if txtCount > 0 {
 		CheckForAdditionalInput()
 	}
 	InitialConsoleInput()
-	CheckFlagCorrectness()
 	CheckFlags()
 }
