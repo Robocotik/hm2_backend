@@ -252,7 +252,7 @@ func CheckForAdditionalInput() {
 
 	fileInput, err := os.Open(flag.Args()[0])
 	if err != nil {
-		fmt.Println("Error: occured")
+		fmt.Println("Error: occured", err)
 	}
 	defer fileInput.Close()
 
@@ -333,15 +333,9 @@ func showResult() {
 			//fmt.Printf("i found %v | %v\n", min_key, min_num)
 			if flags.c {
 				fileOutput.WriteString(fmt.Sprint(lines_count[min_key].count))
-				fileOutput.WriteString(" " + min_key)
-				if i != len(lines_count)-1 {
-					fileOutput.WriteString("\n")
-				}
+				fileOutput.WriteString(" " + min_key + "\n")
 			} else {
-				fileOutput.WriteString(min_key)
-				if i != len(lines_count)-1 {
-					fileOutput.WriteString("\n")
-				}
+				fileOutput.WriteString(min_key + "\n")
 			}
 		}
 		fileOutput.Close()
