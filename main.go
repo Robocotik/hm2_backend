@@ -19,12 +19,15 @@ type Flags struct {
 }
 
 var flags Flags
-type count_num struct{
+
+type count_num struct {
 	count int
-	num int
+	num   int
 }
+
 var lines_count = make(map[string]count_num)
 var txtCount = 0
+var usableFlag = false
 
 func BoolToInt(el bool) int {
 	if el {
@@ -42,12 +45,12 @@ func CheckI() {
 		//fmt.Printf("for |%v| i did |%v|\n", key, strings.ToLower(key))
 		arg := strings.ToLower(key)
 		_, exist := changed_list_count[arg]
-		if exist{
+		if exist {
 			tmp := changed_list_count[arg]
 			tmp.count += val.count
 			changed_list_count[arg] = tmp
-		} else{
-			changed_list_count[arg] = count_num{val.count,val.num}
+		} else {
+			changed_list_count[arg] = count_num{val.count, val.num}
 		}
 		fmt.Println(changed_list_count)
 
@@ -80,48 +83,91 @@ func CheckD() { // --d flag
 	fmt.Println(lines_count)
 	fmt.Println("----------I'M IN D---------")
 }
-
 func CheckF() { // --f= flag
 	fmt.Println("\n________after F___________")
 	var changed_list_count = make(map[string]count_num)
+	usableFlag = false
 	for key, val := range lines_count {
 		arg := ""
-		if len(strings.Fields(key)) > flags.f{
+		if len(strings.Fields(key)) > flags.f {
 			arg = strings.Join(strings.Fields(key)[flags.f:], " ")
-		} 
-		_, exist := changed_list_count[arg]
-		if exist {
-			tmp := changed_list_count[arg]
-			tmp.count += val.count
-			changed_list_count[arg] = tmp
-		}else{
-			changed_list_count[arg] = count_num{val.count,val.num}
 		}
+		usableFlag = false
+		for key2, _ := range changed_list_count {
+			arg2 := ""
+			if len(strings.Fields(key2)) > flags.f {
+				arg2 = strings.Join(strings.Fields(key2)[flags.f:], " ")
+			}
+			if arg2 == arg && usableFlag == false {
+				//fmt.Printf("key(changed) %v --- key %v\n" ,key2 ,key)
+				usableFlag = true
+				tmp := lines_count[key]
+				tmp2 := changed_list_count[key2]
+				if tmp.num > tmp2.num {
+					tmp2.count += tmp.count
+					changed_list_count[key2] = tmp2
+				} else {
+					tmp.count += tmp2.count
+					changed_list_count[key] = tmp
+					delete(changed_list_count, key2)
+
+				}
+
+			}
+
+		}
+		if !usableFlag {
+			changed_list_count[key] = count_num{val.count, val.num}
+		}
+		//fmt.Printf("for |%v| will be  |%v|\n", key, changed_list_count)
+
 	}
 	lines_count = changed_list_count
-	fmt.Println(lines_count)
+
 	fmt.Println("----------I'M IN F-------------")
 }
 
 func CheckS() { // --s= flag
 	fmt.Println("\n________after S___________")
 	var changed_list_count = make(map[string]count_num)
+	usableFlag = false
 	for key, val := range lines_count {
 		arg := ""
-		if len(key) > flags.f{
-			arg = key[flags.f:]
-		} 
-		_, exist := changed_list_count[arg]
-		if exist {
-			tmp := changed_list_count[arg]
-			tmp.count += val.count
-			changed_list_count[arg] = tmp
-		}else{
-			changed_list_count[arg] = count_num{val.count,val.num}
+		if len(key) > flags.s {
+			arg = strings.TrimSpace(key[flags.s:])
 		}
+		usableFlag = false
+		for key2, _ := range changed_list_count {
+			arg2 := ""
+			if len(key2) > flags.s {
+				arg2 = strings.TrimSpace(key2[flags.s:])
+			}
+			if arg2 == arg && usableFlag == false {
+				//fmt.Printf("key(changed) %v --- key %v\n" ,key2 ,key)
+				usableFlag = true
+				tmp := lines_count[key]
+				tmp2 := changed_list_count[key2]
+				if tmp.num > tmp2.num {
+					tmp2.count += tmp.count
+					changed_list_count[key2] = tmp2
+				} else {
+					tmp.count += tmp2.count
+					changed_list_count[key] = tmp
+					delete(changed_list_count, key2)
+
+				}
+
+			}
+
+		}
+		if !usableFlag {
+			changed_list_count[key] = count_num{val.count, val.num}
+		}
+		//fmt.Printf("for |%v| will be  |%v|\n", key, changed_list_count)
+		fmt.Printf("for |%v| will be  |%v|\n", key, changed_list_count)
 	}
 	lines_count = changed_list_count
-	fmt.Println(lines_count)
+
 	fmt.Println("---------I'M IN S-----------")
 
 }
@@ -139,16 +185,16 @@ func InitialConsoleInput() {
 		for {
 			// read line from stdin using newline as separator
 			scanner.Scan()
-			
+
 			// if line is empty, break the loop
 			line := strings.TrimSpace(scanner.Text())
 			_, exist := lines_count[line]
-			if exist{
+			if exist {
 				tmp := lines_count[line]
-				tmp.count ++
+				tmp.count++
 				lines_count[line] = tmp
-			} else{
-				lines_count[line] = count_num{1,i}
+			} else {
+				lines_count[line] = count_num{1, i}
 			}
 			i++
 
@@ -197,20 +243,20 @@ func CheckForAdditionalInput() {
 	defer fileInput.Close()
 
 	scanner := bufio.NewScanner(fileInput)
-	i:= 0
+	i := 0
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		_, exist := lines_count[line]
-		if exist{
+		if exist {
 			tmp := lines_count[line]
-			tmp.count ++
+			tmp.count++
 			lines_count[line] = tmp
-		} else{
-			lines_count[line] = count_num{1,i}
+		} else {
+			lines_count[line] = count_num{1, i}
 		}
 		i++
 	}
-	
+
 	//fmt.Println(lines_count)
 
 	if err := scanner.Err(); err != nil {
