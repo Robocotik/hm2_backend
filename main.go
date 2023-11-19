@@ -38,53 +38,67 @@ func BoolToInt(el bool) int {
 }
 
 func CheckI() {
-	fmt.Println("\n________after I___________")
+	// fmt.Println("\n________after I___________")
 	var changed_list_count = make(map[string]count_num)
-	//fmt.Printf("i got at start %v\n", lines_count)
+	usableFlag = false
 	for key, val := range lines_count {
-		//fmt.Printf("for |%v| i did |%v|\n", key, strings.ToLower(key))
 		arg := strings.ToLower(key)
-		_, exist := changed_list_count[arg]
-		if exist {
-			tmp := changed_list_count[arg]
-			tmp.count += val.count
-			changed_list_count[arg] = tmp
-		} else {
-			changed_list_count[arg] = count_num{val.count, val.num}
+		usableFlag = false
+
+		for key2, _ := range changed_list_count {
+			arg2 := strings.ToLower(key2)
+			if arg2 == arg && usableFlag == false {
+				//fmt.Printf("key(changed) %v --- key %v\n" ,key2 ,key)
+				usableFlag = true
+				tmp := lines_count[key]
+				tmp2 := changed_list_count[key2]
+				if tmp.num > tmp2.num {
+					tmp2.count += tmp.count
+					changed_list_count[key2] = tmp2
+				} else {
+					tmp.count += tmp2.count
+					changed_list_count[key] = tmp
+					delete(changed_list_count, key2)
+
+				}
+
+			}
+
 		}
-		fmt.Println(changed_list_count)
+		if !usableFlag {
+			changed_list_count[key] = count_num{val.count, val.num}
+		}
+		//fmt.Printf("for |%v| will be  |%v|\n", key, changed_list_count)
 
 	}
-	//fmt.Println(changed_list_count)
 	lines_count = changed_list_count
-	//fmt.Println(lines_count)
-	fmt.Println("-----------I'M IN I----------")
+	// fmt.Println("-----------I'M IN I----------")
 }
 
 func CheckU() {
 
-	fmt.Println("\n________after U___________")
+	// fmt.Println("\n________after U___________")
 	for key, val := range lines_count {
 		if val.count > 1 {
 			delete(lines_count, key)
 		}
 	}
 	//fmt.Println(lines_count)
-	fmt.Println("------------I'M IN U-----------")
+	// fmt.Println("------------I'M IN U-----------")
 }
 
 func CheckD() { // --d flag
-	fmt.Println("\n________after D___________")
+	// fmt.Println("\n________after D___________")
 	for key, val := range lines_count {
 		if val.count == 1 {
 			delete(lines_count, key)
 		}
 	}
-	fmt.Println(lines_count)
-	fmt.Println("----------I'M IN D---------")
+	// fmt.Println(lines_count)
+	// fmt.Println("----------I'M IN D---------")
 }
 func CheckF() { // --f= flag
-	fmt.Println("\n________after F___________")
+	// fmt.Println("\n________after F___________")
 	var changed_list_count = make(map[string]count_num)
 	usableFlag = false
 	for key, val := range lines_count {
@@ -124,11 +138,11 @@ func CheckF() { // --f= flag
 	}
 	lines_count = changed_list_count
 
-	fmt.Println("----------I'M IN F-------------")
+	// fmt.Println("----------I'M IN F-------------")
 }
 
 func CheckS() { // --s= flag
-	fmt.Println("\n________after S___________")
+	// fmt.Println("\n________after S___________")
 	var changed_list_count = make(map[string]count_num)
 	usableFlag = false
 	for key, val := range lines_count {
@@ -164,18 +178,18 @@ func CheckS() { // --s= flag
 			changed_list_count[key] = count_num{val.count, val.num}
 		}
 		//fmt.Printf("for |%v| will be  |%v|\n", key, changed_list_count)
-		fmt.Printf("for |%v| will be  |%v|\n", key, changed_list_count)
+		// fmt.Printf("for |%v| will be  |%v|\n", key, changed_list_count)
 	}
 	lines_count = changed_list_count
 
-	fmt.Println("---------I'M IN S-----------")
+	// fmt.Println("---------I'M IN S-----------")
 
 }
 
 func CheckC() { // --c flag
 	// it already works in default
-	fmt.Println("\n________after C___________")
-	fmt.Println("-----------I'M IN C------------")
+	// fmt.Println("\n________after C___________")
+	// fmt.Println("-----------I'M IN C------------")
 }
 
 func InitialConsoleInput() {
@@ -293,7 +307,6 @@ func InitFlags() {
 }
 
 func showResult() {
-	fmt.Println(lines_count)
 	if txtCount == 2 { // check for needing in output.txt
 		//fmt.Println("OUTPUTED IN FILE")
 
@@ -304,27 +317,60 @@ func showResult() {
 
 		}
 		//fmt.Println(lines_count)
-		for key, val := range lines_count {
+		min_num := 1000000000
+		min_key := " "
+		prev := -100
+		//fmt.Printf("before result i got  %v\n", lines_count)
+		for i := 0; i < len(lines_count); i++ {
+			min_num = 1000000000
+			for key2, val2 := range lines_count {
+				if val2.num < min_num && val2.num > prev {
+					min_num = val2.num
+					min_key = key2
+				}
+			}
+			prev = min_num
+			//fmt.Printf("i found %v | %v\n", min_key, min_num)
 			if flags.c {
-				fileOutput.WriteString(fmt.Sprint(val))
-				fileOutput.WriteString(" " + key + "\n")
+				fileOutput.WriteString(fmt.Sprint(lines_count[min_key].count))
+				fileOutput.WriteString(" " + min_key)
+				if i != len(lines_count)-1 {
+					fileOutput.WriteString("\n")
+				}
 			} else {
-				fileOutput.WriteString(key + "\n")
+				fileOutput.WriteString(min_key)
+				if i != len(lines_count)-1 {
+					fileOutput.WriteString("\n")
+				}
 			}
 		}
-
 		fileOutput.Close()
 		return
 	}
-
-	for key, val := range lines_count {
+	min_num := 1000000000
+	min_key := " "
+	prev := -100
+	//fmt.Printf("before result i got  %v\n", lines_count)
+	for i := 0; i < len(lines_count); i++ {
+		min_num = 1000000000
+		for key2, val2 := range lines_count {
+			if val2.num < min_num && val2.num > prev {
+				min_num = val2.num
+				min_key = key2
+			}
+		}
+		prev = min_num
+		//fmt.Printf("i found %v | %v\n", min_key, min_num)
 		if flags.c {
-			fmt.Printf("%v %v\n", val, key)
+			fmt.Printf("%v ", lines_count[min_key].count)
+			fmt.Println(min_key)
 		} else {
-			fmt.Println(key)
+			fmt.Println(min_key)
 		}
 	}
+
 }
+
 func main() {
 	InitFlags()
 	CheckFlagCorrectness()
