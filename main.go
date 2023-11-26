@@ -201,27 +201,29 @@ func InitialConsoleInput() {
 			scanner.Scan()
 
 			// if line is empty, break the loop
-			line := strings.TrimSpace(scanner.Text())
-			_, exist := lines_count[line]
+			line := scanner.Text()
+			trimmed_line := strings.TrimSpace(line)
+			_, exist := lines_count[trimmed_line]
 			if exist {
-				tmp := lines_count[line]
+				tmp := lines_count[trimmed_line]
 				tmp.count++
-				lines_count[line] = tmp
+				lines_count[trimmed_line] = tmp
 			} else {
-				lines_count[line] = count_num{1, i}
+				lines_count[trimmed_line] = count_num{1, i}
 			}
 			i++
 
 			if len(line) == 0 {
+				fmt.Printf("|%v|\n", line)
 				break
 			}
 			//append the line to a slice
 
 		}
-		//fmt.Println(lines_count)
+		fmt.Println(lines_count)
 
 		if scanner.Err() != nil {
-			fmt.Println("Error: reading error occured")
+			fmt.Println("Error: reading error occurred")
 		}
 
 	}
@@ -252,7 +254,7 @@ func CheckForAdditionalInput() {
 
 	fileInput, err := os.Open(flag.Args()[0])
 	if err != nil {
-		fmt.Println("Error: occured", err)
+		fmt.Println("Error: occurred", err)
 	}
 	defer fileInput.Close()
 
@@ -307,12 +309,13 @@ func InitFlags() {
 }
 
 func showResult() {
+	
 	if txtCount == 2 { // check for needing in output.txt
 		//fmt.Println("OUTPUTED IN FILE")
 
 		fileOutput, err := os.OpenFile(flag.Args()[1], os.O_WRONLY|os.O_CREATE, 0755)
 		if err != nil {
-			fmt.Println("Error: Occured problem during opening the file")
+			fmt.Println("Error: Occurred problem during opening the file")
 			return
 
 		}
