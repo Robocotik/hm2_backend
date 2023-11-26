@@ -196,9 +196,8 @@ func InitialConsoleInput() {
 	if txtCount == 0 {
 		scanner := bufio.NewScanner(os.Stdin)
 		i := 0
-		for {
+		for scanner.Scan(){
 			// read line from stdin using newline as separator
-			scanner.Scan()
 
 			// if line is empty, break the loop
 			line := scanner.Text()
@@ -213,14 +212,14 @@ func InitialConsoleInput() {
 			}
 			i++
 
-			if len(line) == 0 {
-				fmt.Printf("|%v|\n", line)
-				break
-			}
+			// if len(line) == 0 {
+			// 	fmt.Printf("|%v|\n", line)
+			// 	break
+			// }
 			//append the line to a slice
 
 		}
-		fmt.Println(lines_count)
+		// fmt.Println(lines_count)
 
 		if scanner.Err() != nil {
 			fmt.Println("Error: reading error occurred")
